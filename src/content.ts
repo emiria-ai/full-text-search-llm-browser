@@ -8,15 +8,13 @@ const getPageInfo = () => {
   return {
     title: document.title,
     url: window.location.href,
-    md: markdown,
+    markdown,
     timestamp: new Date().toISOString(),
   };
 };
 
 setTimeout(() => {
   const pageInfo = getPageInfo();
-
-  console.log(pageInfo);
 
   chrome.runtime.sendMessage(pageInfo);
 }, 1000);
