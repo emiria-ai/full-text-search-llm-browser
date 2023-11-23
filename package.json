@@ -13,7 +13,8 @@
     "@extend-chrome/storage": "^1.5.0",
     "@types/chrome": "^0.0.253",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "webforai": "^0.0.15"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.21",

@@ -9,6 +9,14 @@ const manifest = defineManifest({
   action: {
     default_popup: "index.html",
   },
+  host_permissions: ["http://*/*", "https://*/*"],
+  content_scripts: [
+    {
+      matches: ["<all_urls>"],
+      js: ["src/content.ts"],
+    },
+  ],
+  permissions: ["unlimitedStorage", "storage"],
 });
 
 // https://vitejs.dev/config/
