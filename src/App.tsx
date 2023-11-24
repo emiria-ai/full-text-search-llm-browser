@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import "./App.css";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 function App() {
   const [apiKey, setApiKey] = useState("");
@@ -24,18 +25,20 @@ function App() {
   };
 
   return (
-    <>
-      <h1>OpenAI API Key</h1>
-      <div className="card">
-        <input
-          type="text"
+    <div className="h-96 w-96 p-8">
+      <h1 className="text-2xl text-center font-bold mb-5">OpenAI API Key</h1>
+      <div>
+        <Input
+          className="w-full"
           value={apiKey}
           onChange={handleApiKeyChange}
           placeholder="Enter OpenAI API Key"
         />
-        <button onClick={saveApiKey}>Save API Key</button>
+        <div className="mt-5 flex justify-center">
+          <Button onClick={saveApiKey}>Save API Key</Button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
