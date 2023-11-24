@@ -1,40 +1,55 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import type { PageInfo } from "@/types";
 
-chrome.runtime.onMessage.addListener(async (request) => {
-  chrome.storage.sync.get("openAIKey", async (result) => {
-    const openAIApiKey = result.openAIKey;
+chrome.runtime.onMessage.addListener(handleMessage);
 
-    if (!openAIApiKey) {
-      console.error("OpenAI API key not found.");
-      return;
-    }
+async function handleMessage(request: PageInfo): Promise<void> {
+  try {
+    const openAIApiKey = await getOpenAIApiKey();
 
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 500,
-      chunkOverlap: 0,
-    });
+    const vectorStore = await setupVectorStore(request, openAIApiKey);
 
-    const metadata = {
-      title: request.title,
-      url: request.url,
-    };
-
-    const docs = await splitter.createDocuments([request.markdown], [metadata]);
-
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      docs,
-      new OpenAIEmbeddings({
-        openAIApiKey: openAIApiKey,
-      })
-    );
-
-    const resultOne = await vectorStore.similaritySearch(
-      "Cursorのメリットとは?",
-      1
-    );
-
+    const resultOne = await performSearch(vectorStore);
     console.log(resultOne);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+async function getOpenAIApiKey(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get("openAIKey", (result) => {
+      if (result.openAIKey) {
+        resolve(result.openAIKey);
+      } else {
+        reject(new Error("OpenAI API key not found."));
+      }
+    });
   });
-});
+}
+
+async function setupVectorStore(
+  request: PageInfo,
+  openAIApiKey: string
+): Promise<MemoryVectorStore> {
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    chunkOverlap: 0,
+  });
+  const docs = await splitter.createDocuments(
+    [request.markdown],
+    [request.metadata]
+  );
+
+  console.log(docs);
+  return MemoryVectorStore.fromDocuments(
+    docs,
+    new OpenAIEmbeddings({ openAIApiKey })
+  );
+}
+
+async function performSearch(vectorStore: MemoryVectorStore) {
+  return vectorStore.similaritySearch("ローカル LLM とは?", 1);
+}

@@ -23,7 +23,9 @@
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
-    "webforai": "^0.0.15"
+    "webforai": "^0.0.15",
+    "youtube-transcript": "^1.0.6",
+    "youtubei.js": "^7.0.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.21",
