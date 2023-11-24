@@ -1,7 +1,7 @@
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { crx, defineManifest } from "@crxjs/vite-plugin";
-import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
 
 const manifest = defineManifest({
   manifest_version: 3,
@@ -26,5 +26,10 @@ const manifest = defineManifest({
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), crx({ manifest }), tsconfigPaths()],
+  plugins: [react(), crx({ manifest })],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
