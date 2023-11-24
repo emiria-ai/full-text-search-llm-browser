@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@extend-chrome/storage": "^1.5.0",
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tabs": "^1.0.4",
     "@types/chrome": "^0.0.253",
     "@vitejs/plugin-react": "^4.2.0",
     "class-variance-authority": "^0.7.0",
@@ -21,6 +23,8 @@
     "lucide-react": "^0.293.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
     "webforai": "^0.0.15",
@@ -29,6 +33,7 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.21",
+    "@tailwindcss/typography": "^0.5.10",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",

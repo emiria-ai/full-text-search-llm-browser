@@ -4,7 +4,9 @@ export type Metadata = {
   timestamp: string;
 };
 
+export type Action = "rag" | "index";
 export type PageInfo = {
   markdown: string;
+  action: Action;
   metadata: Metadata;
 };

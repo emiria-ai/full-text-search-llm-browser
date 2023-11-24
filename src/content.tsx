@@ -12,6 +12,7 @@ const getPageInfo = (): PageInfo => {
   console.log(`send ${window.location.href}`);
   return {
     markdown,
+    action: "index",
     metadata: {
       title: document.title,
       url: window.location.href,

@@ -1,22 +1,82 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import type { PageInfo } from "@/types";
+import { RetrievalQAChain } from "langchain/chains";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 
-chrome.runtime.onMessage.addListener(handleMessage);
+// TODO: fix: OpenAI API Key Error
 
-async function handleMessage(request: PageInfo): Promise<void> {
-  try {
-    const openAIApiKey = await getOpenAIApiKey();
+let openAIApiKey;
+getOpenAIApiKey()
+  .then((key) => {
+    openAIApiKey = key;
+  })
+  .catch((error) => {
+    console.error("Error getting OpenAI API Key:", error);
+  });
 
-    const vectorStore = await setupVectorStore(request, openAIApiKey);
+// Declare vector_store here if it does not depend on openAIApiKey
+const vectorStore = new MemoryVectorStore(
+  new OpenAIEmbeddings({
+    openAIApiKey,
+  })
+);
 
-    const resultOne = await performSearch(vectorStore);
-    console.log(resultOne);
-  } catch (error) {
-    console.error("An error occurred:", error);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  switch (request.action) {
+    case "index": {
+      indexWeb(request).then((result) => {
+        sendResponse(result);
+      });
+      break;
+    }
+    case "rag": {
+      runLLM(request).then((result) => {
+        sendResponse(result);
+      });
+      break;
+    }
+    default: {
+      throw new Error(`no action: ${request.action}`);
+    }
   }
-}
+  return true;
+});
+
+export const model = new ChatOpenAI({
+  modelName: "gpt-3.5-turbo",
+  verbose: true,
+  temperature: 0,
+  openAIApiKey,
+});
+
+const runLLM = async (request: any) => {
+  console.log(request);
+  const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {
+    returnSourceDocuments: true,
+  });
+
+  const res = await chain.call({
+    query: request.query,
+  });
+
+  return res;
+};
+
+const indexWeb = async (request: any) => {
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    chunkOverlap: 0,
+  });
+  const docs = await splitter.createDocuments(
+    [request.markdown],
+    [request.metadata]
+  );
+
+  await vectorStore.addDocuments(docs);
+
+  return docs;
+};
 
 async function getOpenAIApiKey(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -28,28 +88,4 @@ async function getOpenAIApiKey(): Promise<string> {
       }
     });
   });
-}
-
-async function setupVectorStore(
-  request: PageInfo,
-  openAIApiKey: string
-): Promise<MemoryVectorStore> {
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 500,
-    chunkOverlap: 0,
-  });
-  const docs = await splitter.createDocuments(
-    [request.markdown],
-    [request.metadata]
-  );
-
-  console.log(docs);
-  return MemoryVectorStore.fromDocuments(
-    docs,
-    new OpenAIEmbeddings({ openAIApiKey })
-  );
-}
-
-async function performSearch(vectorStore: MemoryVectorStore) {
-  return vectorStore.similaritySearch("ローカル LLM とは?", 1);
 }
